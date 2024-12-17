@@ -92,7 +92,7 @@ function Login() {
 										<FormControl>
 											<Input
 												required
-												className='px-10 py-5 bg-slate-800 text-red-700'
+												className='px-10 py-5 bg-white'
 												type='text'
 												placeholder='Number'
 												{...field}
