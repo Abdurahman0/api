@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { toast } from 'react-toast'
 
 const formSchema = z.object({
 	number: z.string().min(5),
@@ -27,6 +28,7 @@ function Login() {
 		if (token) {
 			navigate('/dashboard')
 		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
 
 	const [loading, setloading] = useState(false)
@@ -62,12 +64,12 @@ function Login() {
 				localStorage.setItem('tokenchik', data.data.tokens.accessToken.token)
 
 				// Navigate to the main page after successfully saving the token
-				navigate('/')
+				navigate('/dashboard')
 			} else {
-				alert('Login failed. Please check your credentials.')
+				toast('Login failed. Please check your credentials.')
 			}
 		} catch (error) {
-			alert('An error occurred. Please try again later.')
+			toast('An error occurred. Please try again later.')
 		} finally {
 			setloading(false) // Stop loading
 		}
@@ -90,7 +92,7 @@ function Login() {
 										<FormControl>
 											<Input
 												required
-												className='px-10 py-5 bg-white'
+												className='px-10 py-5 bg-slate-800 text-red-700'
 												type='text'
 												placeholder='Number'
 												{...field}
