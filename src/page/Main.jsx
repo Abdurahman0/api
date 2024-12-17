@@ -10,6 +10,8 @@ function Main() {
 		const token = localStorage.getItem('tokenchik')
 		if (!token) {
 			navigate('/login')
+		} else {
+			navigate('/dashboard')
 		}
 	}, [])
 
