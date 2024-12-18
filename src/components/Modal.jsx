@@ -23,6 +23,14 @@ function Modal({ handleModal, modal, id }) {
 	const { pathname } = useLocation()
 	let defaultValues
 
+	const fields =
+		pathname === '/dashboard'
+			? [
+					{ name: 'name_en', Flabel: 'Name EN' },
+					{ name: 'name_ru', Flabel: 'Name RU' },
+			  ]
+			: [{ name: 'title', Flabel: 'Title' }]
+
 	const formSchema =
 		pathname === '/dashboard'
 			? z.object({
@@ -135,45 +143,27 @@ function Modal({ handleModal, modal, id }) {
 							className='flex relative bg-indigo-300 border rounded-xl p-10 items-center justify-center gap-5 flex-col'
 						>
 							<Button
-								className='absolute top-5 right-5'
+								className='absolute top-1 right-3'
 								variant='destructive'
 								onClick={handleModal}
 							>
 								Close
 							</Button>
-							<FormField
-								name={pathname === '/dashboard' ? 'name_en' : 'title'}
-								control={form.control}
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Name EN</FormLabel>
-										<FormControl>
-											<Input
-												required
-												className='px-10 py-5 bg-white text-black'
-												type='text'
-												placeholder='Name en'
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
 
-							{pathname === '/dashboard' && (
+							{fields.map((field, id) => (
 								<FormField
-									name='name_ru'
+									key={id}
+									name={field.name}
 									control={form.control}
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Name RU</FormLabel>
+											<FormLabel>{field.name}</FormLabel>
 											<FormControl>
 												<Input
 													required
 													className='px-10 py-5 bg-white text-black'
 													type='text'
-													placeholder='Name ru'
+													placeholder={field.Flabel}
 													{...field}
 												/>
 											</FormControl>
@@ -181,7 +171,8 @@ function Modal({ handleModal, modal, id }) {
 										</FormItem>
 									)}
 								/>
-							)}
+							))}
+
 							<FormField
 								name='image_src'
 								control={form.control}
