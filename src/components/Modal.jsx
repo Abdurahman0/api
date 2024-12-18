@@ -14,59 +14,91 @@ import {
 } from './ui/form'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-
-const formSchema = z.object({
-	name_en: z.string().min(1, 'Name (EN) is required'),
-	name_ru: z.string().min(1, 'Name (RU) is required'),
-	image_src: z
-		.instanceof(File)
-		.or(z.string())
-		.refine(file => file instanceof File, {
-			message: 'Image is required',
-		}),
-})
+import { useLocation } from 'react-router-dom'
 
 function Modal({ handleModal, modal, id }) {
 	const token = localStorage.getItem('tokenchik')
 	const [loading, setLoading] = useState(false)
 	const [currentData, setCurrentData] = useState(null) // Holds current data for the modal
+	const { pathname } = useLocation()
+	let defaultValues
 
-	const form = useForm({
-		resolver: zodResolver(formSchema),
-		defaultValues: {
+	const formSchema =
+		pathname === '/dashboard'
+			? z.object({
+					name_en: z.string().min(1, 'Name (EN) is required'),
+					name_ru: z.string().min(1, 'Name (RU) is required'),
+					image_src: z.instanceof(File).or(z.string()),
+			  })
+			: z.object({
+					title: z.string().min(1, 'Title is required'),
+					image_src: z.instanceof(File).or(z.string()),
+			  })
+
+	console.log(pathname === '/dashboard')
+
+	if (pathname === '/dashboard') {
+		defaultValues = {
 			name_en: '',
 			name_ru: '',
 			image_src: '',
-		},
+		}
+	} else if (pathname === '/brands') {
+		defaultValues = {
+			title: '',
+			image_src: '',
+		}
+	}
+
+	const form = useForm({
+		resolver: zodResolver(formSchema),
+		defaultValues,
 	})
 
 	// Update form only when `id` changes or initial data is different
 	useEffect(() => {
-		if (id && currentData !== id) {
-			setCurrentData(id) // Store the current `id` to prevent loops
-			form.reset({
-				name_en: id[0]?.name_en || '',
-				name_ru: id[0]?.name_ru || '',
-				image_src: `https://realauto.limsa.uz/api/uploads/images/${id[0]?.image_src}`,
-			})
+		if (pathname === '/dashboard') {
+			if (id && currentData !== id) {
+				setCurrentData(id) // Store the current `id` to prevent loops
+				form.reset({
+					name_en: id[0]?.name_en || '',
+					name_ru: id[0]?.name_ru || '',
+					image_src: `https://realauto.limsa.uz/api/uploads/images/${id[0]?.image_src}`,
+				})
+			}
+		} else if (pathname === '/brands') {
+			if (id && currentData !== id) {
+				setCurrentData(id) // Store the current `id` to prevent loops
+				form.reset({
+					title: id[0]?.title || '',
+					image_src: `https://realauto.limsa.uz/api/uploads/images/${id[0]?.image_src}`,
+				})
+			}
 		}
-	}, [id, form, currentData])
+	}, [id, form, currentData, pathname])
 
 	async function handleSubmit(values) {
 		setLoading(true)
 		try {
 			const formData = new FormData()
-			formData.append('name_en', values.name_en)
-			formData.append('name_ru', values.name_ru)
+			formData.append(
+				pathname === '/dashboard' ? 'name_en' : 'title',
+				pathname === '/dashboard' ? values.name_en : values.title
+			)
+			pathname === '/dashboard' && formData.append('name_ru', values.name_ru)
 
 			if (values.image_src instanceof File) {
 				formData.append('images', values.image_src)
 			}
 
 			const response = await fetch(
-				id.length === 0
-					? `https://realauto.limsa.uz/api/categories`
-					: `https://realauto.limsa.uz/api/categories/${id[0].id}`,
+				pathname === '/dashboard'
+					? id.length === 0
+						? `https://realauto.limsa.uz/api/categories`
+						: `https://realauto.limsa.uz/api/categories/${id[0].id}`
+					: id.length === 0
+					? `https://realauto.limsa.uz/api/brands`
+					: `https://realauto.limsa.uz/api/brands/${id[0].id}`,
 				{
 					method: id.length === 0 ? 'POST' : 'PUT',
 					headers: {
@@ -110,7 +142,7 @@ function Modal({ handleModal, modal, id }) {
 								Close
 							</Button>
 							<FormField
-								name='name_en'
+								name={pathname === '/dashboard' ? 'name_en' : 'title'}
 								control={form.control}
 								render={({ field }) => (
 									<FormItem>
@@ -128,25 +160,28 @@ function Modal({ handleModal, modal, id }) {
 									</FormItem>
 								)}
 							/>
-							<FormField
-								name='name_ru'
-								control={form.control}
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Name RU</FormLabel>
-										<FormControl>
-											<Input
-												required
-												className='px-10 py-5 bg-white text-black'
-												type='text'
-												placeholder='Name ru'
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+
+							{pathname === '/dashboard' && (
+								<FormField
+									name='name_ru'
+									control={form.control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Name RU</FormLabel>
+											<FormControl>
+												<Input
+													required
+													className='px-10 py-5 bg-white text-black'
+													type='text'
+													placeholder='Name ru'
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 							<FormField
 								name='image_src'
 								control={form.control}

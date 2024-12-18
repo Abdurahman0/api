@@ -63,8 +63,6 @@ function Dashboard() {
 		getCategories()
 	}, [])
 
-	console.log(categories?.data)
-
 	return (
 		<div className={`w-full h-full bg-red-800 text-white p-4`}>
 			<div className='flex justify-between items-center py-3'>
