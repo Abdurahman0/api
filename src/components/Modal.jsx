@@ -43,8 +43,6 @@ function Modal({ handleModal, modal, id }) {
 					image_src: z.instanceof(File).or(z.string()),
 			  })
 
-	console.log(pathname === '/dashboard')
-
 	if (pathname === '/dashboard') {
 		defaultValues = {
 			name_en: '',

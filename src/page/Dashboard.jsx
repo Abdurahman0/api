@@ -56,8 +56,6 @@ function Dashboard() {
 		}
 	}
 
-	console.log(categories)
-
 	// Fetch data when the component mounts
 	useEffect(() => {
 		getCategories()
