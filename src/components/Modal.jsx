@@ -77,8 +77,8 @@ function Modal({ handleModal, modal, id }) {
 			{ name: 'text', label: 'Text' },
 		],
 		'/locations': [
-			{ name: 'name', label: 'Title' },
-			{ name: 'text', label: 'Text' },
+			{ name: 'name', name2: 'Title' },
+			{ name: 'text', name2: 'Text' },
 		],
 	}
 
@@ -174,28 +174,31 @@ function Modal({ handleModal, modal, id }) {
 								Close
 							</Button>
 
-							{fields.map((field, index) => (
-								<FormField
-									key={index}
-									name={field.name}
-									control={form.control}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>{field.label}</FormLabel>
-											<FormControl>
-												<Input
-													required
-													className='px-10 py-5 bg-white text-black'
-													type='text'
-													placeholder={field.label}
-													{...field}
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							))}
+							{fields.map((item, index) => {
+								console.log()
+								return (
+									<FormField
+										key={index}
+										name={item.name}
+										control={form.control}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel>{item.name2}</FormLabel>
+												<FormControl>
+													<Input
+														required
+														className='px-10 py-5 bg-white text-black'
+														type='text'
+														placeholder={item.name2}
+														{...field}
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+								)
+							})}
 
 							<FormField
 								name='image_src'

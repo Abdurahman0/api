@@ -62,3 +62,12 @@
 body {
 	box-sizing: border-box;
 }
+
+/* Add this in your CSS file to ensure labels are visible */
+form label {
+	color: black !important; /* Ensure visibility */
+	font-size: 16px !important; /* Ensure readable size */
+	visibility: visible !important;
+	display: inline-block !important;
+	opacity: 1 !important;
+}
