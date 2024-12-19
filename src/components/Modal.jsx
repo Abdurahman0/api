@@ -37,6 +37,11 @@ function Modal({ handleModal, modal, id }) {
 			text: z.string().min(7, 'Text is required'),
 			image_src: z.instanceof(File).or(z.string()),
 		}),
+		'/locations': z.object({
+			name: z.string().min(3, 'Title is required'),
+			text: z.string().min(7, 'Text is required'),
+			image_src: z.instanceof(File).or(z.string()),
+		}),
 	}
 
 	const defaultValuesMap = {
@@ -54,6 +59,11 @@ function Modal({ handleModal, modal, id }) {
 			text: '',
 			image_src: '',
 		},
+		'/locations': {
+			name: '',
+			text: '',
+			image_src: '',
+		},
 	}
 
 	const fieldsMap = {
@@ -63,6 +73,10 @@ function Modal({ handleModal, modal, id }) {
 		],
 		'/brands': [{ name: 'title', label: 'Title' }],
 		'/cities': [
+			{ name: 'name', label: 'Title' },
+			{ name: 'text', label: 'Text' },
+		],
+		'/locations': [
 			{ name: 'name', label: 'Title' },
 			{ name: 'text', label: 'Text' },
 		],
@@ -109,6 +123,7 @@ function Modal({ handleModal, modal, id }) {
 				'/dashboard': 'categories',
 				'/brands': 'brans',
 				'/cities': 'cities',
+				'/locations': 'locations',
 			}
 
 			const apiPath = urlMap[pathname]

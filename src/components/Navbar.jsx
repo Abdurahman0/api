@@ -31,10 +31,10 @@ function Navbar({ handleLogout }) {
 					<span className='text-white text-xl'>Cities</span>
 				</NavLink>
 				<NavLink
-					to={'/models'}
+					to={'/locations'}
 					className='flex items-center hover:scale-110 duration-300 transition transform border rounded-xl p-2 mx-2'
 				>
-					<span className='text-white text-xl'>Models</span>
+					<span className='text-white text-xl'>Locations</span>
 				</NavLink>
 			</div>
 
