@@ -99,7 +99,7 @@ function Locations() {
 							<td className='p-2 flex justify-center items-center'>
 								<img
 									src={`https://realauto.limsa.uz/api/uploads/images/${city.image_src}`}
-									alt={city.name_en}
+									alt={city.name}
 									className='w-16 h-16 object-cover rounded'
 								/>
 							</td>

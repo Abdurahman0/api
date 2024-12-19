@@ -15,6 +15,8 @@ function Brands() {
 		setModal(!modal)
 	}
 
+	console.log(brands)
+
 	const getBrands = async () => {
 		try {
 			const response = await fetch('https://realauto.limsa.uz/api/brands', {
@@ -97,7 +99,7 @@ function Brands() {
 							<td className='p-2 flex justify-center items-center'>
 								<img
 									src={`https://realauto.limsa.uz/api/uploads/images/${brand.image_src}`}
-									alt={brand.name_en}
+									alt={brand.title}
 									className='w-16 h-16 object-cover rounded'
 								/>
 							</td>

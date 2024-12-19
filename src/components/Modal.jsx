@@ -15,15 +15,23 @@ import {
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { useLocation } from 'react-router-dom'
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from './ui/select'
 
-function Modal({ handleModal, modal, id }) {
+const Modal = ({ handleModal, modal, id, brands }) => {
 	const token = localStorage.getItem('tokenchik')
 	const [loading, setLoading] = useState(false)
 	const [currentData, setCurrentData] = useState(null)
 	const { pathname } = useLocation()
 
+	// Schema mappings for different routes
 	const formSchemas = {
-		'/dashboard': z.object({
+		'/categories': z.object({
 			name_en: z.string().min(1, 'Name (EN) is required'),
 			name_ru: z.string().min(1, 'Name (RU) is required'),
 			image_src: z.instanceof(File).or(z.string()),
@@ -42,32 +50,24 @@ function Modal({ handleModal, modal, id }) {
 			text: z.string().min(7, 'Text is required'),
 			image_src: z.instanceof(File).or(z.string()),
 		}),
+		'/models': z.object({
+			name: z.string().min(3, 'Name is required'),
+			brand_id: z.string().min(1, 'Brand is required'),
+		}),
 	}
 
+	// Default values for each route
 	const defaultValuesMap = {
-		'/dashboard': {
-			name_en: '',
-			name_ru: '',
-			image_src: '',
-		},
-		'/brands': {
-			title: '',
-			image_src: '',
-		},
-		'/cities': {
-			name: '',
-			text: '',
-			image_src: '',
-		},
-		'/locations': {
-			name: '',
-			text: '',
-			image_src: '',
-		},
+		'/categories': { name_en: '', name_ru: '', image_src: '' },
+		'/brands': { title: '', image_src: '' },
+		'/cities': { name: '', text: '', image_src: '' },
+		'/locations': { name: '', text: '', image_src: '' },
+		'/models': { name: '', brand_id: '' },
 	}
 
+	// Fields for form rendering
 	const fieldsMap = {
-		'/dashboard': [
+		'/categories': [
 			{ name: 'name_en', label: 'Name EN' },
 			{ name: 'name_ru', label: 'Name RU' },
 		],
@@ -77,8 +77,12 @@ function Modal({ handleModal, modal, id }) {
 			{ name: 'text', label: 'Text' },
 		],
 		'/locations': [
-			{ name: 'name', name2: 'Title' },
-			{ name: 'text', name2: 'Text' },
+			{ name: 'name', label: 'Title' },
+			{ name: 'text', label: 'Text' },
+		],
+		'/models': [
+			{ name: 'name', label: 'Name' },
+			{ name: 'brand_id', label: 'Brand' },
 		],
 	}
 
@@ -103,47 +107,53 @@ function Modal({ handleModal, modal, id }) {
 		}
 	}, [id, form, currentData])
 
-	async function handleSubmit(values) {
-		const Data = fields.reduce((acc, field) => {
-			acc[field.name] = values[field.name]
-			return acc
-		}, {})
-
+	const handleSubmit = async values => {
 		setLoading(true)
+
 		try {
 			const formData = new FormData()
-			Object.entries(Data).forEach(([key, value]) => {
-				formData.append(key, value)
+
+			// Handle fields dynamically
+			Object.entries(values).forEach(([key, value]) => {
+				if (key === 'image_src') {
+					if (value instanceof File) {
+						formData.append('images', value)
+					} else if (typeof value === 'string' && value) {
+						formData.append('images', value)
+					}
+				} else {
+					formData.append(key, value instanceof File ? value : String(value))
+				}
 			})
-			if (values.image_src instanceof File) {
-				formData.append('images', values.image_src)
-			}
 
 			const urlMap = {
-				'/dashboard': 'categories',
-				'/brands': 'brans',
+				'/categories': 'categories',
+				'/brands': 'brands',
 				'/cities': 'cities',
 				'/locations': 'locations',
+				'/models': 'models',
 			}
 
 			const apiPath = urlMap[pathname]
-			const res = await fetch(
-				`https://realauto.limsa.uz/api/${apiPath}${
-					id.length > 0 ? `/${id[0].id}` : ''
-				}`,
-				{
-					method: id.length === 0 ? 'POST' : 'PUT',
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-					body: formData,
-				}
-			)
+			const requestUrl = `https://realauto.limsa.uz/api/${apiPath}${
+				id && id.length > 0 ? `/${id[0].id}` : ''
+			}`
+
+			const method = id && id.length > 0 ? 'PUT' : 'POST'
+
+			const res = await fetch(requestUrl, {
+				method,
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				body: formData,
+			})
 
 			const data = await res.json()
 
 			if (res.ok) {
 				toast('Action completed successfully!')
+				handleModal()
 				window.location.reload()
 			} else {
 				toast(data.message || 'An error occurred.')
@@ -153,7 +163,6 @@ function Modal({ handleModal, modal, id }) {
 			toast('An error occurred. Please try again.')
 		} finally {
 			setLoading(false)
-			form.reset()
 		}
 	}
 
@@ -164,70 +173,90 @@ function Modal({ handleModal, modal, id }) {
 					{modal && (
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
-							className='flex relative bg-indigo-300 border rounded-xl p-10 items-center justify-center gap-5 flex-col'
+							className='flex flex-col gap-5 p-10 relative bg-indigo-300 border rounded-xl'
 						>
 							<Button
-								className='absolute top-1 right-3'
+								className='absolute top-3 right-3'
 								variant='destructive'
 								onClick={handleModal}
 							>
 								Close
 							</Button>
-
-							{fields.map((item, index) => {
-								console.log()
-								return (
-									<FormField
-										key={index}
-										name={item.name}
-										control={form.control}
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>{item.name2}</FormLabel>
-												<FormControl>
+							{fields.map(({ name, label }) => (
+								<FormField
+									key={name}
+									name={name}
+									control={form.control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>{label}</FormLabel>
+											<FormControl>
+												{name === 'brand_id' ? (
+													<Select
+														onValueChange={value =>
+															form.setValue('brand_id', value)
+														}
+													>
+														<FormLabel>Select Brand</FormLabel>
+														<SelectTrigger className='w-full bg-black'>
+															<SelectValue placeholder='Choose a Brand' />
+														</SelectTrigger>
+														<SelectContent>
+															{brands.map(brand => (
+																<SelectItem
+																	key={brand.id}
+																	value={String(brand.id)}
+																>
+																	{brand.title}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
+												) : (
 													<Input
 														required
-														className='px-10 py-5 bg-white text-black'
-														type='text'
-														placeholder={item.name2}
+														className='px-4 py-2 bg-white text-black'
+														placeholder={label}
 														{...field}
 													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-								)
-							})}
+												)}
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							))}
 
-							<FormField
-								name='image_src'
-								control={form.control}
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Image</FormLabel>
-										<FormControl>
-											<Input
-												required
-												className='px-0 py-5 bg-white text-black'
-												type='file'
-												onChange={e =>
-													field.onChange(e.target.files?.[0] || '')
-												}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							{pathname !== '/models' && (
+								<FormField
+									name='image_src'
+									control={form.control}
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Image</FormLabel>
+											<FormControl>
+												<Input
+													required
+													className='px-0 py-5 bg-white text-black'
+													type='file'
+													onChange={e =>
+														field.onChange(e.target.files?.[0] || '')
+													}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							)}
 
 							<Button
-								className='px-28 py-6'
+								className='px-10 py-4'
 								type='submit'
 								variant='default'
 								disabled={loading}
 							>
-								Submit
+								{loading ? 'Submitting...' : 'Submit'}
 							</Button>
 						</form>
 					)}
