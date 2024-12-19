@@ -198,7 +198,7 @@ const Modal = ({ handleModal, modal, id, brands }) => {
 														}
 													>
 														<FormLabel>Select Brand</FormLabel>
-														<SelectTrigger className='w-full bg-black'>
+														<SelectTrigger className='w-full bg-white text-black'>
 															<SelectValue placeholder='Choose a Brand' />
 														</SelectTrigger>
 														<SelectContent>

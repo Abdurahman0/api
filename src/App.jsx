@@ -2,7 +2,6 @@ import { Route, Routes } from 'react-router-dom'
 import Main from './page/Main'
 import Login from './page/Login'
 import Dashboard from './page/Dashboard'
-import Categories from './page/Categories'
 import { ToastContainer } from 'react-toast'
 import Brands from './page/Brands'
 import Cities from './page/Cities'
@@ -16,7 +15,6 @@ function App() {
 			<Routes>
 				<Route path='/' element={<Main />}>
 					<Route path='/categories' element={<Dashboard />} />
-					<Route path='/categories' element={<Categories />} />
 					<Route path='/brands' element={<Brands />} />
 					<Route path='/cities' element={<Cities />} />
 					<Route path='/locations' element={<Locations />} />
