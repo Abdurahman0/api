@@ -6,7 +6,7 @@ import Categories from './page/Categories'
 import { ToastContainer } from 'react-toast'
 import Brands from './page/Brands'
 import Models from './page/Models'
-import Places from './page/Places'
+import Cities from './page/Cities'
 
 function App() {
 	return (
@@ -18,7 +18,7 @@ function App() {
 					<Route path='/categories' element={<Categories />} />
 					<Route path='/brands' element={<Brands />} />
 					<Route path='/models' element={<Models />} />
-					<Route path='/places' element={<Places />} />
+					<Route path='/cities' element={<Cities />} />
 				</Route>
 				<Route path='/login' element={<Login />} />
 			</Routes>

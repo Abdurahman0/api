@@ -19,92 +19,103 @@ import { useLocation } from 'react-router-dom'
 function Modal({ handleModal, modal, id }) {
 	const token = localStorage.getItem('tokenchik')
 	const [loading, setLoading] = useState(false)
-	const [currentData, setCurrentData] = useState(null) // Holds current data for the modal
+	const [currentData, setCurrentData] = useState(null)
 	const { pathname } = useLocation()
-	let defaultValues
 
-	const fields =
-		pathname === '/dashboard'
-			? [
-					{ name: 'name_en', Flabel: 'Name EN' },
-					{ name: 'name_ru', Flabel: 'Name RU' },
-			  ]
-			: [{ name: 'title', Flabel: 'Title' }]
+	const formSchemas = {
+		'/dashboard': z.object({
+			name_en: z.string().min(1, 'Name (EN) is required'),
+			name_ru: z.string().min(1, 'Name (RU) is required'),
+			image_src: z.instanceof(File).or(z.string()),
+		}),
+		'/brands': z.object({
+			title: z.string().min(1, 'Title is required'),
+			image_src: z.instanceof(File).or(z.string()),
+		}),
+		'/cities': z.object({
+			name: z.string().min(3, 'Title is required'),
+			text: z.string().min(7, 'Text is required'),
+			image_src: z.instanceof(File).or(z.string()),
+		}),
+	}
 
-	const formSchema =
-		pathname === '/dashboard'
-			? z.object({
-					name_en: z.string().min(1, 'Name (EN) is required'),
-					name_ru: z.string().min(1, 'Name (RU) is required'),
-					image_src: z.instanceof(File).or(z.string()),
-			  })
-			: z.object({
-					title: z.string().min(1, 'Title is required'),
-					image_src: z.instanceof(File).or(z.string()),
-			  })
-
-	if (pathname === '/dashboard') {
-		defaultValues = {
+	const defaultValuesMap = {
+		'/dashboard': {
 			name_en: '',
 			name_ru: '',
 			image_src: '',
-		}
-	} else if (pathname === '/brands') {
-		defaultValues = {
+		},
+		'/brands': {
 			title: '',
 			image_src: '',
-		}
+		},
+		'/cities': {
+			name: '',
+			text: '',
+			image_src: '',
+		},
 	}
+
+	const fieldsMap = {
+		'/dashboard': [
+			{ name: 'name_en', label: 'Name EN' },
+			{ name: 'name_ru', label: 'Name RU' },
+		],
+		'/brands': [{ name: 'title', label: 'Title' }],
+		'/cities': [
+			{ name: 'name', label: 'Title' },
+			{ name: 'text', label: 'Text' },
+		],
+	}
+
+	const formSchema = formSchemas[pathname]
+	const defaultValues = defaultValuesMap[pathname] || {}
+	const fields = fieldsMap[pathname] || []
 
 	const form = useForm({
 		resolver: zodResolver(formSchema),
 		defaultValues,
 	})
 
-	// Update form only when `id` changes or initial data is different
 	useEffect(() => {
-		if (pathname === '/dashboard') {
-			if (id && currentData !== id) {
-				setCurrentData(id) // Store the current `id` to prevent loops
-				form.reset({
-					name_en: id[0]?.name_en || '',
-					name_ru: id[0]?.name_ru || '',
-					image_src: `https://realauto.limsa.uz/api/uploads/images/${id[0]?.image_src}`,
-				})
-			}
-		} else if (pathname === '/brands') {
-			if (id && currentData !== id) {
-				setCurrentData(id) // Store the current `id` to prevent loops
-				form.reset({
-					title: id[0]?.title || '',
-					image_src: `https://realauto.limsa.uz/api/uploads/images/${id[0]?.image_src}`,
-				})
-			}
+		if (id && currentData !== id) {
+			setCurrentData(id)
+			form.reset({
+				...id[0],
+				image_src: id[0]?.image_src
+					? `https://realauto.limsa.uz/api/uploads/images/${id[0].image_src}`
+					: '',
+			})
 		}
-	}, [id, form, currentData, pathname])
+	}, [id, form, currentData])
 
 	async function handleSubmit(values) {
+		const Data = fields.reduce((acc, field) => {
+			acc[field.name] = values[field.name]
+			return acc
+		}, {})
+
 		setLoading(true)
 		try {
 			const formData = new FormData()
-			formData.append(
-				pathname === '/dashboard' ? 'name_en' : 'title',
-				pathname === '/dashboard' ? values.name_en : values.title
-			)
-			pathname === '/dashboard' && formData.append('name_ru', values.name_ru)
-
+			Object.entries(Data).forEach(([key, value]) => {
+				formData.append(key, value)
+			})
 			if (values.image_src instanceof File) {
 				formData.append('images', values.image_src)
 			}
 
-			const response = await fetch(
-				pathname === '/dashboard'
-					? id.length === 0
-						? `https://realauto.limsa.uz/api/categories`
-						: `https://realauto.limsa.uz/api/categories/${id[0].id}`
-					: id.length === 0
-					? `https://realauto.limsa.uz/api/brands`
-					: `https://realauto.limsa.uz/api/brands/${id[0].id}`,
+			const urlMap = {
+				'/dashboard': 'categories',
+				'/brands': 'brans',
+				'/cities': 'cities',
+			}
+
+			const apiPath = urlMap[pathname]
+			const res = await fetch(
+				`https://realauto.limsa.uz/api/${apiPath}${
+					id.length > 0 ? `/${id[0].id}` : ''
+				}`,
 				{
 					method: id.length === 0 ? 'POST' : 'PUT',
 					headers: {
@@ -114,13 +125,13 @@ function Modal({ handleModal, modal, id }) {
 				}
 			)
 
-			const data = await response.json()
+			const data = await res.json()
 
-			if (response.ok) {
-				toast('Category updated successfully!')
+			if (res.ok) {
+				toast('Action completed successfully!')
 				window.location.reload()
 			} else {
-				toast(data.message || 'Failed to update category.')
+				toast(data.message || 'An error occurred.')
 			}
 		} catch (error) {
 			console.error('Error:', error)
@@ -148,20 +159,20 @@ function Modal({ handleModal, modal, id }) {
 								Close
 							</Button>
 
-							{fields.map((field, id) => (
+							{fields.map((field, index) => (
 								<FormField
-									key={id}
+									key={index}
 									name={field.name}
 									control={form.control}
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>{field.name}</FormLabel>
+											<FormLabel>{field.label}</FormLabel>
 											<FormControl>
 												<Input
 													required
 													className='px-10 py-5 bg-white text-black'
 													type='text'
-													placeholder={field.Flabel}
+													placeholder={field.label}
 													{...field}
 												/>
 											</FormControl>
@@ -191,6 +202,7 @@ function Modal({ handleModal, modal, id }) {
 									</FormItem>
 								)}
 							/>
+
 							<Button
 								className='px-28 py-6'
 								type='submit'

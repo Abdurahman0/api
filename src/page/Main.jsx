@@ -13,8 +13,10 @@ function Main() {
 			navigate('/login')
 		} else if (pathname === '/dashboard') {
 			navigate('/dashboard')
-		} else {
+		} else if (pathname === '/brands') {
 			navigate('/brands')
+		} else if (pathname === '/cities') {
+			navigate('/cities')
 		}
 	}, [])
 
