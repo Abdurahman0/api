@@ -26,7 +26,7 @@ function Login() {
 
 	useEffect(() => {
 		if (token) {
-			navigate('/dashboard')
+			navigate('/categories')
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [])
@@ -64,7 +64,7 @@ function Login() {
 				localStorage.setItem('tokenchik', data.data.tokens.accessToken.token)
 
 				// Navigate to the main page after successfully saving the token
-				navigate('/dashboard')
+				navigate('/categories')
 			} else {
 				toast('Login failed. Please check your credentials.')
 			}

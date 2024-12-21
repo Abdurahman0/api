@@ -11,8 +11,8 @@ function Main() {
 		const token = localStorage.getItem('tokenchik')
 		if (!token) {
 			navigate('/login')
-		} else if (pathname === '/dashboard') {
-			navigate('/dashboard')
+		} else if (pathname === '/categories') {
+			navigate('/categories')
 		} else if (pathname === '/brands') {
 			navigate('/brands')
 		} else if (pathname === '/cities') {
