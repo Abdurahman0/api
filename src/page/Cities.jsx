@@ -36,6 +36,26 @@ function Cities() {
 	}
 
 	const deleteCities = async id => {
+		const confirmDelete = await new Promise(resolve => {
+			toast(
+				<div>
+					<p>Are you sure you want to delete this item?</p>
+					<div style={{ display: 'flex', gap: '10px' }}>
+						<button onClick={() => resolve(true)}>Yes</button>
+						<button onClick={() => resolve(false)}>No</button>
+					</div>
+				</div>,
+				{
+					duration: 5000,
+				}
+			)
+		})
+
+		if (!confirmDelete) {
+			toast('Deletion canceled.')
+			return
+		}
+
 		try {
 			const response = await fetch(
 				`https://realauto.limsa.uz/api/cities/${id}`,

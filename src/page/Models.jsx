@@ -1,9 +1,9 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react-hooks/exhaustive-deps */
 import Modal from '@/components/Modal'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toast'
-
 function Models() {
 	const [models, setModels] = useState([])
 	const [brands, setBrands] = useState([])
@@ -59,6 +59,27 @@ function Models() {
 	}
 
 	const deleteModels = async id => {
+		const confirmDelete = new Promise((resolve, reject) => {
+			toast(
+				<div>
+					<p>Are you sure you want to delete this item?</p>
+					<div style={{ display: 'flex', gap: '10px' }}>
+						<button onClick={() => resolve(true)}>Yes</button>
+						<button onClick={() => resolve(false)}>No</button>
+					</div>
+				</div>,
+				{
+					duration: 5000,
+				}
+			)
+		})
+
+		const isConfirmed = await confirmDelete
+		if (!isConfirmed) {
+			toast('Deletion canceled.')
+			return
+		}
+
 		try {
 			const response = await fetch(
 				`https://realauto.limsa.uz/api/models/${id}`,
@@ -69,9 +90,12 @@ function Models() {
 					},
 				}
 			)
-			toast(response.status === 200 && 'Deleted successfully')
+			toast(
+				response.status === 200 ? 'Deleted successfully' : 'Failed to delete'
+			)
 		} catch (err) {
 			console.error(err)
+			toast('An error occurred while deleting the item')
 		} finally {
 			getModels()
 		}
