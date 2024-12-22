@@ -301,7 +301,6 @@ const Modal = ({
 													<Select
 														onValueChange={value => form.setValue(name, value)} // Set the value for 'incursive'
 													>
-														<FormLabel>Select Incursive</FormLabel>
 														<SelectTrigger className='w-full bg-white text-black'>
 															<SelectValue placeholder='Select Inclusive' />
 														</SelectTrigger>
@@ -320,17 +319,6 @@ const Modal = ({
 													<Select
 														onValueChange={value => form.setValue(name, value)} // Dynamically set the value for 'brand_id', 'model_id', or 'city_id'
 													>
-														<FormLabel>
-															{name === 'brand_id'
-																? 'Select Brand'
-																: name === 'model_id'
-																? 'Select Model'
-																: name === 'category_id'
-																? 'Select Category'
-																: name === 'location_id'
-																? 'Select Location'
-																: 'Select City'}
-														</FormLabel>
 														<SelectTrigger className='w-full bg-white text-black'>
 															<SelectValue
 																placeholder={
@@ -458,7 +446,7 @@ const Modal = ({
 										control={form.control}
 										render={({ field }) => (
 											<FormItem>
-												<FormLabel>Image</FormLabel>
+												<FormLabel>Cover Image</FormLabel>
 												<FormControl>
 													<Input
 														required
