@@ -252,7 +252,7 @@ function Cars() {
 							<td className='p-2'>{car.transmission}</td>
 							<td className='p-2 flex justify-center items-center'>
 								<img
-									src={`https://realauto.limsa.uz/api/uploads/images/${car.car_images[1].image.src}`}
+									src={`https://realauto.limsa.uz/api/uploads/images/${car?.car_images[0]?.image?.src}`}
 									alt={car.title}
 									className='w-16 h-16 object-cover rounded'
 								/>
