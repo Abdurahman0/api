@@ -5,7 +5,7 @@ function Navbar({ handleLogout }) {
 	return (
 		<div className='w-full h-screen flex'>
 			{/* Sidebar */}
-			<div className='w-44 bg-blue-800 flex flex-col pt-36 gap-y-4'>
+			<div className='w-44 bg-blue-950 flex flex-col pt-36 gap-y-4'>
 				<NavLink
 					to='/categories'
 					className='flex items-center hover:scale-110 duration-300 transition transform border rounded-xl p-2 mx-2'
@@ -47,7 +47,7 @@ function Navbar({ handleLogout }) {
 			{/* Main Content */}
 			<div className='flex-1 flex flex-col'>
 				{/* Header */}
-				<div className='h-28 bg-blue-800 flex items-center justify-between px-5'>
+				<div className='h-28 bg-blue-950 flex items-center justify-between px-5'>
 					<div className='bg-white border rounded-full size-16' />
 					<span
 						onClick={handleLogout}

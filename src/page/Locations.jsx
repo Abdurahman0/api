@@ -59,9 +59,9 @@ function Locations() {
 	}, [])
 
 	return (
-		<div className={`w-full h-full bg-red-800 text-white p-4`}>
+		<div className={`w-full h-full bg-gray-700 text-white p-4`}>
 			<div className='flex justify-between items-center py-3'>
-				<h1 className='text-3xl font-bold'>Dashboard</h1>
+				<h1 className='text-3xl font-bold'>Locations</h1>
 				<Button onClick={() => handleModal()}>OPEN</Button>
 			</div>
 
@@ -81,13 +81,13 @@ function Locations() {
 			{/* Display fetched data */}
 			<table className='w-full text-left bg-white text-black rounded shadow-md'>
 				<thead>
-					<tr className='bg-blue-600 text-white text-center'>
+					<tr className='bg-blue-950 text-white text-center'>
 						<th className='p-2'>ID</th>
 						<th className='p-2'>Name</th>
 						<th className='p-2'>Text</th>
 						<th className='p-2'>Image</th>
-						<th className='bg-green-600 p-2'>Change</th>
-						<th className='bg-destructive p-2'>Warning</th>
+						<th className='bg-green-950 p-2'>Change</th>
+						<th className='bg-red-950 p-2'>Warning</th>
 					</tr>
 				</thead>
 				<tbody>
