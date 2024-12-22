@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import Modal from '@/components/Modal'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
@@ -13,6 +12,8 @@ function Cars() {
 	const [locations, setLocations] = useState([])
 	const [categories, setCategories] = useState([])
 	const [element, setElement] = useState(null)
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 5
 	const token = localStorage.getItem('tokenchik')
 
 	const handleModal = id => {
@@ -20,8 +21,6 @@ function Cars() {
 		setElement(res)
 		setModal(!modal)
 	}
-
-	console.log(cars)
 
 	const getBrands = async () => {
 		try {
@@ -38,7 +37,6 @@ function Cars() {
 
 			const data = await response.json()
 			setBrands(data)
-			console.log('Brands: ', brands.data)
 		} catch (err) {
 			console.error(err)
 		}
@@ -59,7 +57,6 @@ function Cars() {
 
 			const data = await response.json()
 			setModels(data)
-			console.log('Models: ', models.data)
 		} catch (err) {
 			console.error(err)
 		}
@@ -80,7 +77,6 @@ function Cars() {
 
 			const data = await response.json()
 			setCities(data)
-			console.log('Cities: ', cities.data)
 		} catch (err) {
 			console.error(err)
 		}
@@ -101,7 +97,6 @@ function Cars() {
 
 			const data = await response.json()
 			setCategories(data)
-			console.log('Categories: ', categories.data)
 		} catch (err) {
 			console.error(err)
 		}
@@ -122,7 +117,6 @@ function Cars() {
 
 			const data = await response.json()
 			setLocations(data)
-			console.log('Locations: ', locations.data)
 		} catch (err) {
 			console.error(err)
 		}
@@ -184,6 +178,22 @@ function Cars() {
 		}
 	}
 
+	// Pagination logic
+	const totalPages = Math.ceil((cars?.data?.length || 0) / itemsPerPage)
+
+	// Get cars for the current page
+	const paginatedCars = cars?.data?.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Change page
+	const changePage = newPage => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
+	}
+
 	useEffect(() => {
 		getCars()
 		getBrands()
@@ -234,9 +244,11 @@ function Cars() {
 					</tr>
 				</thead>
 				<tbody>
-					{cars?.data?.map((car, id) => (
+					{paginatedCars?.map((car, id) => (
 						<tr key={id} className='border-b text-center'>
-							<td className='p-2'>{id + 1}</td>
+							<td className='p-2'>
+								{(currentPage - 1) * itemsPerPage + id + 1}
+							</td>
 							<td className='p-2'>{car.transmission}</td>
 							<td className='p-2 flex justify-center items-center'>
 								<img
@@ -267,6 +279,27 @@ function Cars() {
 					))}
 				</tbody>
 			</table>
+
+			{/* Pagination Controls */}
+			<div className='flex justify-center items-center gap-2 mt-4'>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === 1}
+					onClick={() => changePage(currentPage - 1)}
+				>
+					Previous
+				</button>
+				<span className='px-4 py-2'>
+					Page {currentPage} of {totalPages}
+				</span>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === totalPages}
+					onClick={() => changePage(currentPage + 1)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	)
 }

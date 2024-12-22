@@ -7,10 +7,12 @@ function Cities() {
 	const [cities, setCities] = useState([])
 	const [modal, setModal] = useState(false)
 	const [element, setElement] = useState(null)
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 5 // Set the number of cities to display per page
 	const token = localStorage.getItem('tokenchik')
 
 	const handleModal = id => {
-		const res = cities.data.filter(cities => cities.id === id)
+		const res = cities.data.filter(city => city.id === id)
 		setElement(res)
 		setModal(!modal)
 	}
@@ -74,6 +76,22 @@ function Cities() {
 		}
 	}
 
+	// Pagination logic
+	const totalPages = Math.ceil((cities?.data?.length || 0) / itemsPerPage)
+
+	// Get cities for the current page
+	const paginatedCities = cities?.data?.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Change page
+	const changePage = newPage => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
+	}
+
 	useEffect(() => {
 		getCities()
 	}, [])
@@ -84,9 +102,6 @@ function Cities() {
 				<h1 className='text-3xl font-bold'>Cities</h1>
 				<Button onClick={() => handleModal()}>OPEN</Button>
 			</div>
-
-			{/* Show error if any */}
-			{/* {error && <p className='text-red-400'>Error: {error}</p>} */}
 
 			<div
 				className={`fixed inset-0 ${
@@ -111,9 +126,11 @@ function Cities() {
 					</tr>
 				</thead>
 				<tbody>
-					{cities?.data?.map((city, id) => (
+					{paginatedCities?.map((city, id) => (
 						<tr key={id} className='border-b text-center'>
-							<td className='p-2'>{id + 1}</td>
+							<td className='p-2'>
+								{(currentPage - 1) * itemsPerPage + id + 1}
+							</td>
 							<td className='p-2'>{city.name}</td>
 							<td className='p-2'>{city.text}</td>
 							<td className='p-2 flex justify-center items-center'>
@@ -145,6 +162,27 @@ function Cities() {
 					))}
 				</tbody>
 			</table>
+
+			{/* Pagination Controls */}
+			<div className='flex justify-center items-center gap-2 mt-4'>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === 1}
+					onClick={() => changePage(currentPage - 1)}
+				>
+					Previous
+				</button>
+				<span className='px-4 py-2'>
+					Page {currentPage} of {totalPages}
+				</span>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === totalPages}
+					onClick={() => changePage(currentPage + 1)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	)
 }

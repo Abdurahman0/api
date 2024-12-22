@@ -7,10 +7,12 @@ function Locations() {
 	const [locations, setLocations] = useState([])
 	const [modal, setModal] = useState(false)
 	const [element, setElement] = useState(null)
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 5
 	const token = localStorage.getItem('tokenchik')
 
 	const handleModal = id => {
-		const res = locations.data.filter(locations => locations.id === id)
+		const res = locations.data.filter(location => location.id === id)
 		setElement(res)
 		setModal(!modal)
 	}
@@ -55,6 +57,7 @@ function Locations() {
 			toast('Deletion canceled.')
 			return
 		}
+
 		try {
 			const response = await fetch(
 				`https://realauto.limsa.uz/api/locations/${id}`,
@@ -70,6 +73,22 @@ function Locations() {
 			console.error(err)
 		} finally {
 			getLocations()
+		}
+	}
+
+	// Pagination logic
+	const totalPages = Math.ceil((locations?.data?.length || 0) / itemsPerPage)
+
+	// Get locations for the current page
+	const paginatedLocations = locations?.data?.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Change page
+	const changePage = newPage => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
 		}
 	}
 
@@ -110,15 +129,17 @@ function Locations() {
 					</tr>
 				</thead>
 				<tbody>
-					{locations?.data?.map((city, id) => (
+					{paginatedLocations?.map((location, id) => (
 						<tr key={id} className='border-b text-center'>
-							<td className='p-2'>{id + 1}</td>
-							<td className='p-2'>{city.name}</td>
-							<td className='p-2'>{city.text}</td>
+							<td className='p-2'>
+								{(currentPage - 1) * itemsPerPage + id + 1}
+							</td>
+							<td className='p-2'>{location.name}</td>
+							<td className='p-2'>{location.text}</td>
 							<td className='p-2 flex justify-center items-center'>
 								<img
-									src={`https://realauto.limsa.uz/api/uploads/images/${city.image_src}`}
-									alt={city.name}
+									src={`https://realauto.limsa.uz/api/uploads/images/${location.image_src}`}
+									alt={location.name}
 									className='w-16 h-16 object-cover rounded'
 								/>
 							</td>
@@ -126,7 +147,7 @@ function Locations() {
 								<Button
 									variant='change'
 									className='cursor-pointer'
-									onClick={() => handleModal(city.id)}
+									onClick={() => handleModal(location.id)}
 								>
 									Change
 								</Button>
@@ -135,7 +156,7 @@ function Locations() {
 								<Button
 									variant='destructive'
 									className='cursor-pointer'
-									onClick={() => deleteLocations(city.id)}
+									onClick={() => deleteLocations(location.id)}
 								>
 									Delete
 								</Button>
@@ -144,6 +165,27 @@ function Locations() {
 					))}
 				</tbody>
 			</table>
+
+			{/* Pagination Controls */}
+			<div className='flex justify-center items-center gap-2 mt-4'>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === 1}
+					onClick={() => changePage(currentPage - 1)}
+				>
+					Previous
+				</button>
+				<span className='px-4 py-2'>
+					Page {currentPage} of {totalPages}
+				</span>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === totalPages}
+					onClick={() => changePage(currentPage + 1)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	)
 }

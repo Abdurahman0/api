@@ -9,6 +9,8 @@ function Dashboard() {
 	const [error, setError] = useState(null)
 	const [modal, setModal] = useState(false)
 	const [element, setElement] = useState(null)
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 5
 	const token = localStorage.getItem('tokenchik')
 
 	const handleModal = id => {
@@ -80,6 +82,22 @@ function Dashboard() {
 		}
 	}
 
+	// Pagination logic
+	const totalPages = Math.ceil((categories?.data?.length || 0) / itemsPerPage)
+
+	// Get categories for the current page
+	const paginatedCategories = categories?.data?.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Change page
+	const changePage = newPage => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
+	}
+
 	// Fetch data when the component mounts
 	useEffect(() => {
 		getCategories()
@@ -120,9 +138,11 @@ function Dashboard() {
 					</tr>
 				</thead>
 				<tbody>
-					{categories?.data?.map((category, id) => (
+					{paginatedCategories?.map((category, id) => (
 						<tr key={id} className='border-b text-center'>
-							<td className='p-2'>{id + 1}</td>
+							<td className='p-2'>
+								{(currentPage - 1) * itemsPerPage + id + 1}
+							</td>
 							<td className='p-2'>{category.name_en}</td>
 							<td className='p-2'>{category.name_ru}</td>
 							<td className='p-2 flex justify-center items-center'>
@@ -154,6 +174,27 @@ function Dashboard() {
 					))}
 				</tbody>
 			</table>
+
+			{/* Pagination Controls */}
+			<div className='flex justify-center items-center gap-2 mt-4'>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === 1}
+					onClick={() => changePage(currentPage - 1)}
+				>
+					Previous
+				</button>
+				<span className='px-4 py-2'>
+					Page {currentPage} of {totalPages}
+				</span>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === totalPages}
+					onClick={() => changePage(currentPage + 1)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	)
 }

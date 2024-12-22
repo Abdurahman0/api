@@ -7,16 +7,18 @@ function Brands() {
 	const [brands, setBrands] = useState([])
 	const [modal, setModal] = useState(false)
 	const [element, setElement] = useState(null)
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 5
 	const token = localStorage.getItem('tokenchik')
 
+	// Handle modal
 	const handleModal = id => {
-		const res = brands.data.filter(brands => brands.id === id)
+		const res = brands.data.filter(brand => brand.id === id)
 		setElement(res)
 		setModal(!modal)
 	}
 
-	console.log(brands)
-
+	// Fetch brands
 	const getBrands = async () => {
 		try {
 			const response = await fetch('https://realauto.limsa.uz/api/brands', {
@@ -37,6 +39,7 @@ function Brands() {
 		}
 	}
 
+	// Delete a brand
 	const deleteBrands = async id => {
 		const confirmDelete = await new Promise(resolve => {
 			toast(
@@ -76,6 +79,23 @@ function Brands() {
 		}
 	}
 
+	// Calculate total pages and slice the data for pagination
+	const totalPages = Math.ceil((brands?.data?.length || 0) / itemsPerPage)
+
+	// Get brands for the current page
+	const paginatedBrands = brands?.data?.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Change page
+	const changePage = newPage => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
+	}
+
+	// Fetch brands on component mount
 	useEffect(() => {
 		getBrands()
 	}, [])
@@ -112,9 +132,11 @@ function Brands() {
 					</tr>
 				</thead>
 				<tbody>
-					{brands?.data?.map((brand, id) => (
+					{paginatedBrands?.map((brand, id) => (
 						<tr key={id} className='border-b text-center'>
-							<td className='p-2'>{id + 1}</td>
+							<td className='p-2'>
+								{(currentPage - 1) * itemsPerPage + id + 1}
+							</td>
 							<td className='p-2'>{brand.title}</td>
 							<td className='p-2 flex justify-center items-center'>
 								<img
@@ -145,6 +167,27 @@ function Brands() {
 					))}
 				</tbody>
 			</table>
+
+			{/* Pagination Controls */}
+			<div className='flex justify-center items-center gap-2 mt-4'>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === 1}
+					onClick={() => changePage(currentPage - 1)}
+				>
+					Previous
+				</button>
+				<span className='px-4 py-2'>
+					Page {currentPage} of {totalPages}
+				</span>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === totalPages}
+					onClick={() => changePage(currentPage + 1)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	)
 }

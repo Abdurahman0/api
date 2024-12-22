@@ -58,7 +58,7 @@ function Navbar({ handleLogout }) {
 				</div>
 
 				{/* Content Area */}
-				<div className='flex-1 overflow-y-auto p-1'>
+				<div className='flex-1 overflow-y-auto bg-gray-700 p-1 max-h-screen'>
 					<Outlet />
 				</div>
 			</div>

@@ -4,15 +4,18 @@ import Modal from '@/components/Modal'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import { toast } from 'react-toast'
+
 function Models() {
 	const [models, setModels] = useState([])
 	const [brands, setBrands] = useState([])
 	const [modal, setModal] = useState(false)
 	const [element, setElement] = useState(null)
+	const [currentPage, setCurrentPage] = useState(1)
+	const itemsPerPage = 5
 	const token = localStorage.getItem('tokenchik')
 
 	const handleModal = id => {
-		const res = models.data.filter(models => models.id === id)
+		const res = models.data.filter(model => model.id === id)
 		setElement(res)
 		setModal(!modal)
 	}
@@ -101,6 +104,22 @@ function Models() {
 		}
 	}
 
+	// Pagination logic
+	const totalPages = Math.ceil((models?.data?.length || 0) / itemsPerPage)
+
+	// Get models for the current page
+	const paginatedModels = models?.data?.slice(
+		(currentPage - 1) * itemsPerPage,
+		currentPage * itemsPerPage
+	)
+
+	// Change page
+	const changePage = newPage => {
+		if (newPage > 0 && newPage <= totalPages) {
+			setCurrentPage(newPage)
+		}
+	}
+
 	useEffect(() => {
 		getModels()
 		getBrands()
@@ -127,6 +146,10 @@ function Models() {
 						modal={modal}
 						brands={brands.data}
 						handleModal={handleModal}
+						paginatedModels={paginatedModels}
+						currentPage={currentPage}
+						totalPages={totalPages}
+						changePage={changePage}
 					/>
 				)}
 			</div>
@@ -143,16 +166,16 @@ function Models() {
 					</tr>
 				</thead>
 				<tbody>
-					{models?.data?.map((city, id) => (
+					{paginatedModels?.map((model, id) => (
 						<tr key={id} className='border-b text-center'>
 							<td className='p-2'>{id + 1}</td>
-							<td className='p-2'>{city.name}</td>
-							<td className='p-2'>{city.brand_title}</td>
+							<td className='p-2'>{model.name}</td>
+							<td className='p-2'>{model.brand_title}</td>
 							<td className='p-2'>
 								<Button
 									variant='change'
 									className='cursor-pointer'
-									onClick={() => handleModal(city.id)}
+									onClick={() => handleModal(model.id)}
 								>
 									Change
 								</Button>
@@ -161,7 +184,7 @@ function Models() {
 								<Button
 									variant='destructive'
 									className='cursor-pointer'
-									onClick={() => deleteModels(city.id)}
+									onClick={() => deleteModels(model.id)}
 								>
 									Delete
 								</Button>
@@ -170,6 +193,27 @@ function Models() {
 					))}
 				</tbody>
 			</table>
+
+			{/* Pagination Controls */}
+			<div className='flex justify-center items-center gap-2 mt-4'>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === 1}
+					onClick={() => changePage(currentPage - 1)}
+				>
+					Previous
+				</button>
+				<span className='px-4 py-2'>
+					Page {currentPage} of {totalPages}
+				</span>
+				<button
+					className='px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300'
+					disabled={currentPage === totalPages}
+					onClick={() => changePage(currentPage + 1)}
+				>
+					Next
+				</button>
+			</div>
 		</div>
 	)
 }
