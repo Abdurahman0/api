@@ -7,6 +7,7 @@ import Brands from './page/Brands'
 import Cities from './page/Cities'
 import Locations from './page/Locations'
 import Models from './page/Models'
+import Cars from './page/Cars'
 
 function App() {
 	return (
@@ -19,6 +20,7 @@ function App() {
 					<Route path='/cities' element={<Cities />} />
 					<Route path='/locations' element={<Locations />} />
 					<Route path='/models' element={<Models />} />
+					<Route path='/cars' element={<Cars />} />
 				</Route>
 				<Route path='/login' element={<Login />} />
 			</Routes>
